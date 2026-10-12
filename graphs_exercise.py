@@ -106,3 +106,8 @@ directed_graph = {
 }
 
 print("Is weakly connected:", is_weakly_connected(directed_graph))
+
+
+#________________________TASK_4________________________
+
+
