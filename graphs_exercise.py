@@ -107,7 +107,85 @@ directed_graph = {
 
 print("Is weakly connected:", is_weakly_connected(directed_graph))
 
-
 #________________________TASK_4________________________
 
+def eulerian_type(graph, directed=False):
+    active = set()
+
+    for u, neighbors in graph.items():
+        if neighbors:
+            active.add(u)
+            active.update(neighbors)
+
+    if not active:
+        return "circuit"
+
+    undirected = {v: set() for v in active}
+
+    for u, neighbors in graph.items():
+        for v in neighbors:
+            undirected[u].add(v)
+            undirected[v].add(u)
+
+    visited = set()
+    stack = [next(iter(active))]
+
+    while stack:
+        v = stack.pop()
+        if v not in visited:
+            visited.add(v)
+            stack.extend(undirected[v] - visited)
+
+    if visited != active:
+        return "none"
+
+    if directed:
+        in_deg, out_deg = in_out_degree(graph)
+        start_vertices = 0
+        end_vertices = 0
+
+        for v in active:
+            excess = out_deg[v] - in_deg[v]
+
+            if excess == 1:
+                start_vertices += 1
+            elif excess == -1:
+                end_vertices += 1
+            elif excess != 0:
+                return "none"
+
+        if start_vertices == 0 and end_vertices == 0:
+            return "circuit"
+
+        if start_vertices == 1 and end_vertices == 1:
+            return "path"
+
+        return "none"
+
+    deg = degrees(graph)
+    odd_vertices = sum(deg[v] % 2 == 1 for v in active)
+    
+    if odd_vertices == 0:
+        return "circuit"
+        
+    if odd_vertices == 2:
+        return "path"
+    return "none"
+
+
+print("Undirected graph:", eulerian_type(undirected_graph))
+print("Directed graph:", eulerian_type(directed_graph, directed=True))
+directed_path = {
+    "A": ["B"],
+    "B": ["C"],
+    "C": []
+}
+print("Directed path:", eulerian_type(directed_path, directed=True))
+disconnected_graph = {
+    "A": ["B"],
+    "B": ["A"],
+    "C": ["D"],
+    "D": ["C"]
+}
+print("Disconnected graph:", eulerian_type(disconnected_graph))
 
